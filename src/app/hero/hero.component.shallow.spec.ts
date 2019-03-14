@@ -13,11 +13,11 @@ describe('HeroComponent (shallow)', () => {
     fixture = TestBed.createComponent(HeroComponent);
   });
 
-  it('should have the correct Hero', () => {
+  it('should render the hero name in an anchor tag', () => {
     fixture.componentInstance.hero = { id: 1, name: 'SuperDude', strength: 3 };
+    fixture.detectChanges();
 
-    // silly test, just to demonstrate:
-    expect(fixture.componentInstance.hero.name).toBe('SuperDude');
+    expect(fixture.nativeElement.querySelector('a').textContent).toContain('SuperDude');
   });
 
 })

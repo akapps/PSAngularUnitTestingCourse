@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { Component, Input } from "@angular/core";
+import { Component, Input, Type } from "@angular/core";
+import { By } from "@angular/platform-browser";
 import { of } from "rxjs";
 
 import { HeroesComponent } from "./heroes.component";
@@ -8,6 +9,7 @@ import { Hero } from "../hero";
 
 describe('HeroesComponent (shallow)', () => {
   let fixture: ComponentFixture<HeroesComponent>;
+  let HEROES: Hero[];
   let mockHeroService;
 
   @Component({
@@ -19,6 +21,10 @@ describe('HeroesComponent (shallow)', () => {
   }
 
   beforeEach(() => {
+    HEROES = [
+      { id: 12, name: 'Narco', strength: 5 },
+      { id: 13, name: 'Bombasto', strength: 8 }
+    ];
     mockHeroService = jasmine.createSpyObj(['getHeroes', 'addHero', 'deleteHero']);
 
     TestBed.configureTestingModule({
@@ -31,14 +37,16 @@ describe('HeroesComponent (shallow)', () => {
   });
 
   it('should set heroes correctly from the service', () => {
-    let heroesList = [
-      { id: 12, name: 'Narco', strength: 5 },
-      { id: 13, name: 'Bombasto', strength: 8 }
-    ];
-    mockHeroService.getHeroes.and.returnValue(of(heroesList));
-
+    mockHeroService.getHeroes.and.returnValue(of(HEROES));
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.heroes).toEqual(heroesList);
-  })
+    expect(fixture.componentInstance.heroes).toEqual(HEROES);
+  });
+
+  it('should create one li for each hero', () => {
+    mockHeroService.getHeroes.and.returnValue(of(HEROES));
+    fixture.detectChanges();
+
+    expect(fixture.debugElement.queryAll(By.css('ul.heroes > li')).length).toBe(2);
+  });
 })

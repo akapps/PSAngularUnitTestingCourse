@@ -1,23 +1,31 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { Component, Input } from "@angular/core";
+import { of } from "rxjs";
 
 import { HeroesComponent } from "./heroes.component";
 import { HeroService } from "../hero.service";
-import { of } from "rxjs";
+import { Hero } from "../hero";
 
 describe('HeroesComponent (shallow)', () => {
   let fixture: ComponentFixture<HeroesComponent>;
   let mockHeroService;
 
+  @Component({
+    selector: 'app-hero',
+    template: '<div></div>'
+  })
+  class FakeHeroComponent {
+    @Input() hero: Hero;
+  }
+
   beforeEach(() => {
     mockHeroService = jasmine.createSpyObj(['getHeroes', 'addHero', 'deleteHero']);
 
     TestBed.configureTestingModule({
-      declarations: [ HeroesComponent ],
+      declarations: [ HeroesComponent, FakeHeroComponent ],
       providers: [
         { provide: HeroService, useValue: mockHeroService }
-      ],
-      schemas: [ NO_ERRORS_SCHEMA ]
+      ]
     });
     fixture = TestBed.createComponent(HeroesComponent);
   });

@@ -42,6 +42,9 @@ describe('HeroesComponent (deep)', () => {
   });
 
   it('should call HeroService.deleteHero when the delete button is clicked', () => {
+    // In this version of the test we access the button element in the DOM
+    //    to raise the "click" event
+
     // Not especially interesting here, but we can also spy on one of
     // the component's own method and check if it has been called (use callThrough() to delegate the call):
     spyOn(fixture.componentInstance, 'delete').and.callThrough();
@@ -57,6 +60,22 @@ describe('HeroesComponent (deep)', () => {
     // then
     expect(fixture.componentInstance.delete).toHaveBeenCalledWith(HEROES[0]);
     expect(mockHeroService.deleteHero).toHaveBeenCalledWith(HEROES[0]);
-  })
+  });
+
+  it('should call HeroService.deleteHero when the delete button is clicked (impl. variant)', () => {
+    // In this version of the test we access the HeroComponent.delete (EventEmitter object)
+    //    to trigger the event directly (ie the binding is not tested)
+
+    mockHeroService.getHeroes.and.returnValue(of(HEROES));
+    fixture.detectChanges()   // start Ng lifecycle
+    mockHeroService.deleteHero.and.returnValue(of(true));
+
+    // when
+    const elements = fixture.debugElement.queryAll(By.directive(HeroComponent));
+    (<HeroComponent>elements[0].componentInstance).delete.emit(undefined);
+
+    // then
+    expect(mockHeroService.deleteHero).toHaveBeenCalledWith(HEROES[0]);
+  });
 
 })

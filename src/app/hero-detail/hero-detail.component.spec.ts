@@ -40,4 +40,16 @@ describe('HeroDetailComponent', () => {
     expect(fixture.nativeElement.querySelector('h2').textContent).toContain('TOTORO');
   });
 
+  it('should call updateHero when save is called', (done) => {
+    mockHeroService.updateHero.and.returnValue(of({}));
+    fixture.detectChanges();
+
+    fixture.componentInstance.save();
+
+    setTimeout(() => {
+      expect(mockHeroService.updateHero).toHaveBeenCalled();
+      done();   // this call indicates to jasmine that the test is finished
+    }, 300);
+  })
+
 })

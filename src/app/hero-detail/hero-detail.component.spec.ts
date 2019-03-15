@@ -1,4 +1,4 @@
-import { TestBed, ComponentFixture } from "@angular/core/testing";
+import { TestBed, ComponentFixture, async } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { Location } from '@angular/common';
 import { FormsModule } from "@angular/forms";
@@ -39,5 +39,17 @@ describe('HeroDetailComponent', () => {
 
     expect(fixture.nativeElement.querySelector('h2').textContent).toContain('TOTORO');
   });
+
+  it('should asynchronously call updateHero when save is called', async(() => {
+    mockHeroService.updateHero.and.returnValue(of({}));
+    fixture.detectChanges();
+
+    fixture.componentInstance.save();
+
+    // this tells Angular (via Zone.js) to append the assertion to after all promises have been resolved
+    fixture.whenStable().then(() => {
+      expect(mockHeroService.updateHero).toHaveBeenCalled();
+    });
+  }));
 
 })

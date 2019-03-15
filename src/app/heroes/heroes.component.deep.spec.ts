@@ -1,5 +1,5 @@
+import { Directive, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { By } from "@angular/platform-browser";
 import { of } from "rxjs";
 
@@ -7,6 +7,19 @@ import { HeroesComponent } from "./heroes.component";
 import { HeroComponent } from "../hero/hero.component";
 import { HeroService } from "../hero.service";
 import { Hero } from "../hero";
+
+@Directive({
+  selector: '[routerLink]',
+  host: { '(click)': 'onClick()' }
+})
+export class RouterLinkDirectiveStub {
+  @Input('routerLink') linkParams: any;
+  navigatedTo: any = null;
+
+  onClick(): void {
+    this.navigatedTo = this.linkParams;
+  }
+}
 
 describe('HeroesComponent (deep)', () => {
   let fixture: ComponentFixture<HeroesComponent>;
@@ -21,11 +34,10 @@ describe('HeroesComponent (deep)', () => {
     mockHeroService = jasmine.createSpyObj(['getHeroes', 'addHero', 'deleteHero']);
 
     TestBed.configureTestingModule({
-      declarations: [ HeroesComponent, HeroComponent ],
+      declarations: [ HeroesComponent, HeroComponent, RouterLinkDirectiveStub ],
       providers: [
         { provide: HeroService, useValue: mockHeroService }
-      ],
-      schemas: [ NO_ERRORS_SCHEMA ]
+      ]
     });
     fixture = TestBed.createComponent(HeroesComponent);
   });
@@ -94,6 +106,19 @@ describe('HeroesComponent (deep)', () => {
     // then
     const heroes = fixture.debugElement.queryAll(By.directive(HeroComponent)).map(elt => elt.componentInstance.hero);
     expect(heroes).toContain({ id:100, name: 'Totoro', strength: 11 });
+  });
+
+  it('should navigate toward the correct route for the first hero', () => {
+    mockHeroService.getHeroes.and.returnValue(of(HEROES));
+    fixture.detectChanges();
+    const elements = fixture.debugElement.queryAll(By.directive(HeroComponent));
+    const routerLink = elements[0].query(By.directive(RouterLinkDirectiveStub))
+            .injector.get(RouterLinkDirectiveStub);
+
+    // when
+    elements[0].query(By.css('a')).triggerEventHandler('click', null);
+    // then
+    expect(routerLink.navigatedTo).toBe('/detail/12');
   });
 
 })

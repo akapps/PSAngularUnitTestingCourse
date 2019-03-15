@@ -41,4 +41,22 @@ describe('HeroesComponent (deep)', () => {
     });
   });
 
+  it('should call HeroService.deleteHero when the delete button is clicked', () => {
+    // Not especially interesting here, but we can also spy on one of
+    // the component's own method and check if it has been called (use callThrough() to delegate the call):
+    spyOn(fixture.componentInstance, 'delete').and.callThrough();
+
+    mockHeroService.getHeroes.and.returnValue(of(HEROES));
+    fixture.detectChanges()   // start Ng lifecycle
+    mockHeroService.deleteHero.and.returnValue(of(true));
+
+    // when
+    const elements = fixture.debugElement.queryAll(By.directive(HeroComponent));
+    elements[0].query(By.css('button')).triggerEventHandler('click', {stopPropagation: () => {}});
+
+    // then
+    expect(fixture.componentInstance.delete).toHaveBeenCalledWith(HEROES[0]);
+    expect(mockHeroService.deleteHero).toHaveBeenCalledWith(HEROES[0]);
+  })
+
 })

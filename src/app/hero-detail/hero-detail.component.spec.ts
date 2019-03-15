@@ -1,4 +1,4 @@
-import { TestBed, ComponentFixture, fakeAsync, tick } from "@angular/core/testing";
+import { TestBed, ComponentFixture, async } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { Location } from '@angular/common';
 import { FormsModule } from "@angular/forms";
@@ -40,15 +40,16 @@ describe('HeroDetailComponent', () => {
     expect(fixture.nativeElement.querySelector('h2').textContent).toContain('TOTORO');
   });
 
-  it('should call updateHero when save is called - after 250ms', fakeAsync(() => {
+  it('should asynchronously call updateHero when save is called', async(() => {
     mockHeroService.updateHero.and.returnValue(of({}));
     fixture.detectChanges();
 
     fixture.componentInstance.save();
-    tick(250);    // simulates we advance by 250ms in the future - not waiting
-    // alternative: flush();  - no time has to be specified, it executes every registered tasks
 
-    expect(mockHeroService.updateHero).toHaveBeenCalled();
+    // this tells Angular (via Zone.js) to append the assertion to after all promises have been resolved
+    fixture.whenStable().then(() => {
+      expect(mockHeroService.updateHero).toHaveBeenCalled();
+    });
   }));
 
 })

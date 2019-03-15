@@ -32,7 +32,7 @@ describe('HeroesComponent (deep)', () => {
 
   it('should render each hero as a HeroComponent', () => {
     mockHeroService.getHeroes.and.returnValue(of(HEROES));
-    fixture.detectChanges()   // start Ng lifecycle
+    fixture.detectChanges();   // start Ng lifecycle
 
     const elements = fixture.debugElement.queryAll(By.directive(HeroComponent));
     expect(elements.length).toBe(2);
@@ -50,7 +50,7 @@ describe('HeroesComponent (deep)', () => {
     spyOn(fixture.componentInstance, 'delete').and.callThrough();
 
     mockHeroService.getHeroes.and.returnValue(of(HEROES));
-    fixture.detectChanges()   // start Ng lifecycle
+    fixture.detectChanges();   // start Ng lifecycle
     mockHeroService.deleteHero.and.returnValue(of(true));
 
     // when
@@ -67,7 +67,7 @@ describe('HeroesComponent (deep)', () => {
     //    to trigger the event directly (ie the binding is not tested)
 
     mockHeroService.getHeroes.and.returnValue(of(HEROES));
-    fixture.detectChanges()   // start Ng lifecycle
+    fixture.detectChanges();   // start Ng lifecycle
     mockHeroService.deleteHero.and.returnValue(of(true));
 
     // when
@@ -76,6 +76,24 @@ describe('HeroesComponent (deep)', () => {
 
     // then
     expect(mockHeroService.deleteHero).toHaveBeenCalledWith(HEROES[0]);
+  });
+
+  it('should add a new hero to the list when the add button is clicked', () => {
+    mockHeroService.getHeroes.and.returnValue(of(HEROES));
+    fixture.detectChanges();   // start Ng lifecycle
+    mockHeroService.addHero.and.callFake((arg: Hero) => of({id: 100, name: arg.name, strength: arg.strength}));
+    // UI elements:
+    const inputElement = fixture.nativeElement.querySelector('input');
+    const buttonElement = fixture.debugElement.queryAll(By.css('button'))[0];
+
+    // when
+    inputElement.value = "Totoro";
+    buttonElement.triggerEventHandler('click', {});
+    fixture.detectChanges();
+
+    // then
+    const heroes = fixture.debugElement.queryAll(By.directive(HeroComponent)).map(elt => elt.componentInstance.hero);
+    expect(heroes).toContain({ id:100, name: 'Totoro', strength: 11 });
   });
 
 })
